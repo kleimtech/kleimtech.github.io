@@ -36,7 +36,8 @@ function obtenerDatosCalculados(producto) {
     selectedCategory: "todos",
     selectedSubcategory: null,
     searchQuery: "",
-    hideOutOfStock: false
+    hideOutOfStock: false,
+    sortBy: "default" // 'default', 'price-asc', 'price-desc', 'name-asc'
   };
 
   // Referencias al DOM
@@ -50,6 +51,7 @@ function obtenerDatosCalculados(producto) {
     searchInput: document.getElementById("searchInput"),
     searchClearBtn: document.getElementById("searchClearBtn"),
     hideOutOfStockToggle: document.getElementById("hideOutOfStockToggle"),
+    sortSelect: document.getElementById("sortSelect"), // Elemento para la nueva lógica de ordenamiento
     resultsCount: document.getElementById("resultsCount"),
     emptyState: document.getElementById("emptyState"),
     resetFiltersBtn: document.getElementById("resetFiltersBtn"),
@@ -76,7 +78,7 @@ function obtenerDatosCalculados(producto) {
     return str.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
   }
 
- /**
+  /**
    * Normaliza el identificador de categoría para soportar tanto nombres completos
    * como variaciones o slugs cortos.
    */
@@ -84,7 +86,7 @@ function obtenerDatosCalculados(producto) {
     if (!cat) return "";
     const lower = normalizeText(cat);
     
-    // Categorías del nuevo esquema
+    // Categorías del esquema
     if (lower.includes("procesador") || lower === "cpu") return "procesadores";
     if (lower.includes("madre") || lower.includes("mother") || lower.includes("placa")) return "tarjetas madre";
     if (lower.includes("video") || lower.includes("grafica") || lower === "gpu") return "tarjetas de video";
@@ -97,11 +99,32 @@ function obtenerDatosCalculados(producto) {
   }
 
   /**
+   * NUEVA FUNCIÓN LÓGICA: Ordena un arreglo de productos según el criterio seleccionado
+   */
+  function ordenarProductos(lista, criterio) {
+    return lista.sort((a, b) => {
+      const datosA = obtenerDatosCalculados(a);
+      const datosB = obtenerDatosCalculados(b);
+
+      if (criterio === "price-asc") {
+        return parseFloat(datosA.precioVenta) - parseFloat(datosB.precioVenta);
+      }
+      if (criterio === "price-desc") {
+        return parseFloat(datosB.precioVenta) - parseFloat(datosA.precioVenta);
+      }
+      if (criterio === "name-asc") {
+        return a.nombre.localeCompare(b.nombre);
+      }
+      return 0; // Orden por defecto
+    });
+  }
+
+  /**
    * Formateador de precios en USD
    */
   function formatCurrency(amount) {
-    const symbol = CATALOG_CONFIG.currencySymbol || "$";
-    const currencyCode = CATALOG_CONFIG.currency || "USD";
+    const symbol = (typeof CATALOG_CONFIG !== "undefined" && CATALOG_CONFIG.currencySymbol) || "$";
+    const currencyCode = (typeof CATALOG_CONFIG !== "undefined" && CATALOG_CONFIG.currency) || "USD";
     return `${symbol}${Number(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span class="price-currency">${currencyCode}</span>`;
   }
 
@@ -109,7 +132,7 @@ function obtenerDatosCalculados(producto) {
    * Genera el enlace de WhatsApp con mensaje pre-cargado utilizando los datos calculados
    */
   function buildWhatsAppLink(product, datosCalculados) {
-    const store = CATALOG_CONFIG.storeName || "Kleim Tech";
+    const store = (typeof CATALOG_CONFIG !== "undefined" && CATALOG_CONFIG.storeName) || "Kleim Tech";
     const datos = datosCalculados || obtenerDatosCalculados(product);
     let message = "";
 
@@ -125,8 +148,9 @@ function obtenerDatosCalculados(producto) {
         `¿Tienen fecha estimada de reposición o pueden reservarme uno? Gracias.`;
     }
 
+    const waNumber = (typeof CATALOG_CONFIG !== "undefined" && CATALOG_CONFIG.whatsappNumber) || "";
     const encodedText = encodeURIComponent(message);
-    return `https://wa.me/${CATALOG_CONFIG.whatsappNumber}?text=${encodedText}`;
+    return `https://wa.me/${waNumber}?text=${encodedText}`;
   }
 
   /**
@@ -231,8 +255,8 @@ function obtenerDatosCalculados(producto) {
     });
   }
 
-/**
-   * Filtra los productos según búsqueda, categoría, subcategoría y stock calculado
+  /**
+   * Filtra los productos según búsqueda, categoría, subcategoría, stock calculado y orden
    */
   function applyFilters() {
     const rawSearch = state.searchQuery.trim().toLowerCase();
@@ -241,7 +265,7 @@ function obtenerDatosCalculados(producto) {
     const productList = (typeof productos !== "undefined" ? productos : (typeof PRODUCTOS_DATA !== "undefined" ? PRODUCTOS_DATA : []));
     const totalAvailableInStore = productList.length;
 
-    const filtered = productList.filter(item => {
+    let filtered = productList.filter(item => {
       const datos = obtenerDatosCalculados(item);
 
       // 1. Filtro por stock disponible / agotado
@@ -284,6 +308,9 @@ function obtenerDatosCalculados(producto) {
       return true;
     });
 
+    // Aplicar la lógica de ordenamiento antes de renderizar
+    filtered = ordenarProductos(filtered, state.sortBy);
+
     updateActiveFilterUI();
     renderProducts(filtered, totalAvailableInStore);
   }
@@ -296,13 +323,13 @@ function obtenerDatosCalculados(producto) {
 
     if (items.length === 0) {
       DOM.productsGrid.innerHTML = "";
-      DOM.emptyState.classList.add("visible");
-      DOM.resultsCount.innerHTML = `Mostrando <strong>0</strong> productos`;
+      if (DOM.emptyState) DOM.emptyState.classList.add("visible");
+      if (DOM.resultsCount) DOM.resultsCount.innerHTML = `Mostrando <strong>0</strong> productos`;
       return;
     }
 
-    DOM.emptyState.classList.remove("visible");
-    DOM.resultsCount.innerHTML = `Mostrando <strong>${items.length}</strong> de ${totalCount} productos`;
+    if (DOM.emptyState) DOM.emptyState.classList.remove("visible");
+    if (DOM.resultsCount) DOM.resultsCount.innerHTML = `Mostrando <strong>${items.length}</strong> de ${totalCount} productos`;
 
     const html = items.map(createProductCard).join("");
     DOM.productsGrid.innerHTML = html;
@@ -357,6 +384,8 @@ function obtenerDatosCalculados(producto) {
     state.selectedCategory = "todos";
     state.selectedSubcategory = null;
     state.searchQuery = "";
+    state.sortBy = "default";
+    if (DOM.sortSelect) DOM.sortSelect.value = "default";
     if (DOM.searchInput) DOM.searchInput.value = "";
     if (DOM.searchClearBtn) DOM.searchClearBtn.style.display = "none";
     closeMobileMenu();
@@ -480,6 +509,14 @@ function obtenerDatosCalculados(producto) {
     if (DOM.hideOutOfStockToggle) {
       DOM.hideOutOfStockToggle.addEventListener("change", (e) => {
         state.hideOutOfStock = e.target.checked;
+        applyFilters();
+      });
+    }
+
+    // Listener para la selección de ordenamiento
+    if (DOM.sortSelect) {
+      DOM.sortSelect.addEventListener("change", (e) => {
+        state.sortBy = e.target.value;
         applyFilters();
       });
     }
