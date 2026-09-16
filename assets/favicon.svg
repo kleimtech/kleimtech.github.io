@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <!-- Gradiente para el K y aro de neón -->
+    <linearGradient id="blueGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0066ff" />
+      <stop offset="50%" stop-color="#00b4d8" />
+      <stop offset="100%" stop-color="#00f0ff" />
+    </linearGradient>
+
+    <!-- Gradiente metálico para el T -->
+    <linearGradient id="silverChrome" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="45%" stop-color="#e2e8f0" />
+      <stop offset="75%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#64748b" />
+    </linearGradient>
+
+    <!-- Filtro resplandor / cyber glow -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Fondo circular oscuro sutil -->
+  <circle cx="50" cy="50" r="48" fill="#080d1a" stroke="#1e293b" stroke-width="2" />
+
+  <!-- Aro cibernético externo con resplandor -->
+  <circle cx="50" cy="50" r="41" stroke="url(#blueGlow)" stroke-width="3" stroke-dasharray="190 70" stroke-linecap="round" filter="url(#glow)" />
+  <circle cx="50" cy="50" r="41" stroke="url(#blueGlow)" stroke-width="2.5" stroke-dasharray="190 70" stroke-linecap="round" />
+
+  <!-- Puntos y trazas de circuito -->
+  <line x1="8" y1="36" x2="22" y2="36" stroke="#00b4d8" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="7" cy="36" r="2.2" fill="#00f0ff" />
+  <line x1="14" y1="52" x2="26" y2="52" stroke="#00b4d8" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="13" cy="52" r="2.2" fill="#00f0ff" />
+
+  <line x1="78" y1="44" x2="92" y2="44" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="93" cy="44" r="2.2" fill="#e2e8f0" />
+  <line x1="74" y1="60" x2="88" y2="60" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="89" cy="60" r="2.2" fill="#e2e8f0" />
+
+  <!-- Monograma KT estilizado -->
+  <g transform="skewX(-12) translate(10, 0)">
+    <!-- Letra K (Azul Eléctrico) -->
+    <path d="M 32 26 L 41 26 L 41 45 L 53 26 L 63 26 L 47 48 L 65 74 L 54 74 L 41 53 L 41 74 L 32 74 Z" 
+          fill="url(#blueGlow)" 
+          filter="url(#glow)" />
+    <path d="M 32 26 L 41 26 L 41 45 L 53 26 L 63 26 L 47 48 L 65 74 L 54 74 L 41 53 L 41 74 L 32 74 Z" 
+          fill="url(#blueGlow)" />
+
+    <!-- Letra T (Plata / Cromo metálico) -->
+    <path d="M 52 35 L 76 35 L 76 43 L 68 43 L 68 74 L 60 74 L 60 43 L 52 43 Z" 
+          fill="url(#silverChrome)" />
+  </g>
+</svg>
