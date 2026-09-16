@@ -283,30 +283,15 @@
     </svg>
   </a>
 
-  <!-- 7. MODAL DE DETALLE DE PRODUCTO (NUEVO) -->
-  <div id="productModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-container">
-      <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar ventana">&times;</button>
-      <div class="modal-content">
-        <div class="modal-gallery">
-          <img id="modalProductImg" src="" alt="Producto" class="modal-img-main">
-        </div>
-        <div class="modal-info">
-          <span id="modalProductCategory" class="badge-category">Categoría</span>
-          <h2 id="modalProductTitle" class="modal-title">Nombre del Producto</h2>
-          <div class="modal-price-row">
-            <span id="modalProductPrice" class="price-current">$0.00</span>
-          </div>
-          <p id="modalProductDesc" class="modal-description">Descripción del producto...</p>
-          <div id="modalSpecsContainer" class="modal-specs-wrapper" style="display: none;">
-            <h4>Especificaciones clave:</h4>
-            <ul id="modalProductSpecs" class="modal-specs-list"></ul>
-          </div>
-          <a id="modalWhatsappLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-modal">
-            Consultar Disponibilidad por WhatsApp
-          </a>
-        </div>
-      </div>
+  <!-- 7. OVERLAY Y VENTANA EMERGENTE (MODAL) -->
+  <!-- OVERLAY / FONDO OSCURO -->
+  <div id="modalOverlay" class="modal-overlay" aria-hidden="true"></div>
+
+  <!-- VENTANA EMERGENTE (MODAL) -->
+  <div id="productModal" class="product-modal" aria-hidden="true">
+    <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar ventana">&times;</button>
+    <div id="modalBody" class="modal-body">
+      <!-- El contenido se inyecta dinámicamente con JavaScript desde app.js -->
     </div>
   </div>
 
@@ -363,55 +348,79 @@
         }
       });
 
-      // 5. Lógica para Controlar el Modal de Productos
+      // 5. Lógica para Controlar el Modal y Overlay de Productos
       const productModal = document.getElementById('productModal');
+      const modalOverlay = document.getElementById('modalOverlay');
       const modalCloseBtn = document.getElementById('modalCloseBtn');
+      const modalBody = document.getElementById('modalBody');
 
-      if (modalCloseBtn && productModal) {
-        modalCloseBtn.addEventListener('click', () => {
+      function closeModal() {
+        if (productModal) {
           productModal.classList.remove('active');
           productModal.setAttribute('aria-hidden', 'true');
-        });
-
-        productModal.addEventListener('click', (e) => {
-          if (e.target === productModal) {
-            productModal.classList.remove('active');
-            productModal.setAttribute('aria-hidden', 'true');
-          }
-        });
+        }
+        if (modalOverlay) {
+          modalOverlay.classList.remove('active');
+          modalOverlay.setAttribute('aria-hidden', 'true');
+        }
       }
 
-      // Función global expuesta para que app.js abra el modal con los datos de un producto
+      if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeModal);
+      }
+
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', closeModal);
+      }
+
+      // Función global expuesta para renderizar el contenido dentro de #modalBody y mostrar el modal
       window.openProductModal = function(product) {
-        if (!productModal || !product) return;
+        if (!productModal || !modalOverlay || !modalBody || !product) return;
 
-        document.getElementById('modalProductImg').src = product.imagen || product.image || 'assets/logo.png';
-        document.getElementById('modalProductTitle').textContent = product.nombre || product.title || 'Producto';
-        document.getElementById('modalProductCategory').textContent = product.categoria || product.category || 'General';
-        document.getElementById('modalProductPrice').textContent = product.precio ? `$${product.precio}` : '$0.00';
-        document.getElementById('modalProductDesc').textContent = product.descripcion || product.description || 'Consulta detalles y disponibilidad directamente con nuestro equipo de ventas.';
+        const prodImg = product.imagen || product.image || 'assets/logo.png';
+        const prodTitle = product.nombre || product.title || 'Producto';
+        const prodCategory = product.categoria || product.category || 'General';
+        const prodPrice = product.precio ? `$${product.precio}` : '$0.00';
+        const prodDesc = product.descripcion || product.description || 'Consulta detalles y disponibilidad directamente con nuestro equipo de ventas.';
+        const waName = encodeURIComponent(prodTitle);
+        const waUrl = `https://wa.me/584120000000?text=Hola%20Kleim%20Tech,%20quisiera%20más%20información%20del%20producto:%20${waName}`;
 
-        const specsContainer = document.getElementById('modalSpecsContainer');
-        const specsList = document.getElementById('modalProductSpecs');
-        specsList.innerHTML = '';
-
+        let specsHTML = '';
         if (product.especificaciones && Array.isArray(product.especificaciones) && product.especificaciones.length > 0) {
-          product.especificaciones.forEach(spec => {
-            const li = document.createElement('li');
-            li.textContent = `• ${spec}`;
-            specsList.appendChild(li);
-          });
-          specsContainer.style.display = 'block';
-        } else {
-          specsContainer.style.display = 'none';
+          const specsList = product.especificaciones.map(spec => `<li>• ${spec}</li>`).join('');
+          specsHTML = `
+            <div class="modal-specs-wrapper">
+              <h4>Especificaciones clave:</h4>
+              <ul class="modal-specs-list">${specsList}</ul>
+            </div>
+          `;
         }
 
-        const waBtn = document.getElementById('modalWhatsappLink');
-        const prodName = encodeURIComponent(product.nombre || product.title || '');
-        waBtn.href = `https://wa.me/584120000000?text=Hola%20Kleim%20Tech,%20quisiera%20más%20información%20del%20producto:%20${prodName}`;
+        // Inyección dinámica de contenido en #modalBody
+        modalBody.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-gallery">
+              <img src="${prodImg}" alt="${prodTitle}" class="modal-img-main">
+            </div>
+            <div class="modal-info">
+              <span class="badge-category">${prodCategory}</span>
+              <h2 class="modal-title">${prodTitle}</h2>
+              <div class="modal-price-row">
+                <span class="price-current">${prodPrice}</span>
+              </div>
+              <p class="modal-description">${prodDesc}</p>
+              ${specsHTML}
+              <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-modal">
+                Consultar Disponibilidad por WhatsApp
+              </a>
+            </div>
+          </div>
+        `;
 
         productModal.classList.add('active');
         productModal.setAttribute('aria-hidden', 'false');
+        modalOverlay.classList.add('active');
+        modalOverlay.setAttribute('aria-hidden', 'false');
       };
     });
   </script>
