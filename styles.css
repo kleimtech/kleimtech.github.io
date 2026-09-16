@@ -1000,20 +1000,20 @@ input:checked + .slider:before {
   margin-bottom: 0.5 rem;
 }
 
-
 /* ==========================================================================
-   6. DISEÑO RESPONSIVO (MÓVILES Y TABLETS)
+   6. DISEÑO RESPONSIVO UNIFICADO (MÓVILES Y TABLETS)
+   Asegura el Menú Lateral y Protege el Diseño de la Parte Inferior
    ========================================================================== */
 
 @media (max-width: 992px) { 
-  /* Volvemos visible el botón hamburguesa en celulares */
+  /* 1. Volvemos visible el botón hamburguesa en celulares */
   .header__menu-toggle { 
     display: flex !important; 
     position: relative; 
     z-index: 100001 !important; 
   } 
 
-  /* Transformamos el menú en un panel lateral táctil flotante */
+  /* 2. Transformamos el menú en un panel lateral táctil flotante */
   .header__main-nav { 
     position: fixed !important; 
     top: 0; 
@@ -1021,7 +1021,7 @@ input:checked + .slider:before {
     width: 85%; 
     max-width: 300px; 
     height: 100vh; 
-    background-color: #0a0e17 !important; /* El color de fondo oscuro de tu marca */ 
+    background-color: #0a0e17 !important; /* Fondo oscuro de Kleim Tech */ 
     border-right: 1px solid var(--border-subtle); 
     padding: 90px 1.5rem 2rem 1.5rem; 
     z-index: 100000 !important; /* Por encima de las fotos de los procesadores y tarjetas */ 
@@ -1035,11 +1035,44 @@ input:checked + .slider:before {
     left: 0 !important; 
   } 
 
-  /* Alineamos la lista de componentes (Procesadores, Tarjetas Madre, etc.) en vertical */
-  .nav-list { 
+  /* 3. Alineamos la lista de componentes en vertical dentro del panel lateral */
+  .header__main-nav .nav-list { 
     display: flex !important; 
     flex-direction: column !important; 
     gap: 1.25rem !important; 
     list-style: none; 
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* 4. Forzamos que los submenús (Intel, AMD) se queden visibles en móvil */
+  .header__main-nav .dropdown {
+    display: block !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 1rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .header__main-nav .dropdown li a {
+    padding: 6px 0 !important;
+    font-size: 0.9rem !important;
+    color: var(--text-secondary) !important;
+  }
+
+  /* 5. PROTECCIÓN DEL FOOTER: Evita que el contenido inferior se desplace o rompa */
+  footer, .site-footer, .footer-content {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    position: relative !important;
+    clear: both !important;
+    z-index: 10 !important;
+    padding: 2rem 1.25rem !important;
   }
 }
+
