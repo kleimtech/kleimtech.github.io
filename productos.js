@@ -77,7 +77,7 @@ const productos = [
     nombre: "Intel Core i7-14700K 14va Gen LGA 1700",
     categoria: "Procesadores",
     subcategoria: "Intel",
-    costo: 355.00,
+    costo: 430.00,
     ganancia: 15,
     specs: ["20 Núcleos (8P + 12E)", "Hasta 5.6 GHz", "Intel UHD Graphics 770", "Socket LGA 1700"],
     imagen: "https://images.unsplash.com/photo-1555617778-02518510b9fa?w=600&auto=format&fit=crop&q=80",
