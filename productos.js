@@ -113,7 +113,7 @@ const productos = [
     ganancia: 15,
     specs: ["8 Núcleos / 16 Hilos", "Hasta 5.2 GHz", "104MB 3D V-Cache", "Socket AM5 (DDR5/PCIe 5.0)"],
     imagen: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=600&auto=format&fit=crop&q=80",
-    tag: "Agotado"
+    tag: "GAMING"
   },
   {
     id: "cpu-ryzen-5-7600x",
