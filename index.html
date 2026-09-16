@@ -283,11 +283,38 @@
     </svg>
   </a>
 
+  <!-- 7. MODAL DE DETALLE DE PRODUCTO (NUEVO) -->
+  <div id="productModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-container">
+      <button id="modalCloseBtn" class="modal-close-btn" aria-label="Cerrar ventana">&times;</button>
+      <div class="modal-content">
+        <div class="modal-gallery">
+          <img id="modalProductImg" src="" alt="Producto" class="modal-img-main">
+        </div>
+        <div class="modal-info">
+          <span id="modalProductCategory" class="badge-category">Categoría</span>
+          <h2 id="modalProductTitle" class="modal-title">Nombre del Producto</h2>
+          <div class="modal-price-row">
+            <span id="modalProductPrice" class="price-current">$0.00</span>
+          </div>
+          <p id="modalProductDesc" class="modal-description">Descripción del producto...</p>
+          <div id="modalSpecsContainer" class="modal-specs-wrapper" style="display: none;">
+            <h4>Especificaciones clave:</h4>
+            <ul id="modalProductSpecs" class="modal-specs-list"></ul>
+          </div>
+          <a id="modalWhatsappLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-modal">
+            Consultar Disponibilidad por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPTS -->
   <script src="productos.js"></script>
   <script src="app.js"></script>
 
-  <!-- LÓGICA DE INTERACCIÓN MENÚ MÓVIL Y DROPDOWNS -->
+  <!-- LÓGICA DE INTERACCIÓN MENÚ MÓVIL, DROPDOWNS Y MODAL -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const mobileBtn = document.getElementById('mobileMenuBtn');
@@ -335,6 +362,57 @@
           mobileBtn.classList.remove('active');
         }
       });
+
+      // 5. Lógica para Controlar el Modal de Productos
+      const productModal = document.getElementById('productModal');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+      if (modalCloseBtn && productModal) {
+        modalCloseBtn.addEventListener('click', () => {
+          productModal.classList.remove('active');
+          productModal.setAttribute('aria-hidden', 'true');
+        });
+
+        productModal.addEventListener('click', (e) => {
+          if (e.target === productModal) {
+            productModal.classList.remove('active');
+            productModal.setAttribute('aria-hidden', 'true');
+          }
+        });
+      }
+
+      // Función global expuesta para que app.js abra el modal con los datos de un producto
+      window.openProductModal = function(product) {
+        if (!productModal || !product) return;
+
+        document.getElementById('modalProductImg').src = product.imagen || product.image || 'assets/logo.png';
+        document.getElementById('modalProductTitle').textContent = product.nombre || product.title || 'Producto';
+        document.getElementById('modalProductCategory').textContent = product.categoria || product.category || 'General';
+        document.getElementById('modalProductPrice').textContent = product.precio ? `$${product.precio}` : '$0.00';
+        document.getElementById('modalProductDesc').textContent = product.descripcion || product.description || 'Consulta detalles y disponibilidad directamente con nuestro equipo de ventas.';
+
+        const specsContainer = document.getElementById('modalSpecsContainer');
+        const specsList = document.getElementById('modalProductSpecs');
+        specsList.innerHTML = '';
+
+        if (product.especificaciones && Array.isArray(product.especificaciones) && product.especificaciones.length > 0) {
+          product.especificaciones.forEach(spec => {
+            const li = document.createElement('li');
+            li.textContent = `• ${spec}`;
+            specsList.appendChild(li);
+          });
+          specsContainer.style.display = 'block';
+        } else {
+          specsContainer.style.display = 'none';
+        }
+
+        const waBtn = document.getElementById('modalWhatsappLink');
+        const prodName = encodeURIComponent(product.nombre || product.title || '');
+        waBtn.href = `https://wa.me/584120000000?text=Hola%20Kleim%20Tech,%20quisiera%20más%20información%20del%20producto:%20${prodName}`;
+
+        productModal.classList.add('active');
+        productModal.setAttribute('aria-hidden', 'false');
+      };
     });
   </script>
 </body>
