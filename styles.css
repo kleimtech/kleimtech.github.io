@@ -1261,9 +1261,10 @@ input:checked + .slider:before {
 }
 
 /* ==========================================================================
-   8. ESTILOS DEL MODAL DE DETALLE DE PRODUCTO
+   8. ESTILOS REFACTORIZADOS DEL MODAL Y OVERLAY (#modalOverlay, #productModal)
    ========================================================================== */
 
+/* Fondo oscuro difuminado (Overlay) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1271,10 +1272,6 @@ input:checked + .slider:before {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--transition-normal), visibility var(--transition-normal);
@@ -1285,24 +1282,35 @@ input:checked + .slider:before {
   visibility: visible;
 }
 
-.modal-container {
+/* Contenedor emergente (Modal Card) */
+.product-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
   background: var(--bg-card);
   border: 1px solid var(--border-focus);
   border-radius: var(--radius-lg);
-  max-width: 820px;
-  width: 100%;
+  max-width: 840px;
+  width: 92%;
   max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.25);
-  transform: scale(0.95) translateY(10px);
-  transition: transform var(--transition-normal);
+  z-index: 1001;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 25px rgba(56, 189, 248, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform var(--transition-normal), opacity var(--transition-normal), visibility var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.modal-overlay.active .modal-container {
-  transform: scale(1) translateY(0);
+.product-modal.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
 }
 
+/* Botón de cierre (X) */
 .modal-close-btn {
   position: absolute;
   top: 1rem;
@@ -1313,12 +1321,13 @@ input:checked + .slider:before {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 20;
   transition: var(--transition-fast);
 }
 
@@ -1329,11 +1338,19 @@ input:checked + .slider:before {
   transform: rotate(90deg);
 }
 
-.modal-content {
+/* Cuerpo donde JavaScript inyectará el contenido */
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 1rem);
+}
+
+/* Clases internas para la maquetación dinámica del JS dentro de .modal-body */
+.modal-content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  padding: 2rem;
+  align-items: start;
 }
 
 .modal-gallery {
@@ -1432,14 +1449,19 @@ input:checked + .slider:before {
   transform: translateY(-2px);
 }
 
+/* Responsividad del Modal */
 @media (max-width: 768px) {
-  .modal-content {
+  .modal-body {
+    padding: 1.25rem;
+  }
+
+  .modal-content-grid {
     grid-template-columns: 1fr;
     gap: 1.25rem;
-    padding: 1.5rem;
   }
-  
-  .modal-container {
+
+  .product-modal {
+    width: 95%;
     max-height: 85vh;
   }
 }
