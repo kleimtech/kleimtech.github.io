@@ -109,7 +109,7 @@ const productos = [
     nombre: "AMD Ryzen 7 7800X3D Socket AM5",
     categoria: "Procesadores",
     subcategoria: "AMD",
-    costo: 390.00,
+    costo: 0,
     ganancia: 15,
     specs: ["8 Núcleos / 16 Hilos", "Hasta 5.0 GHz", "96MB 3D V-Cache", "Socket AM5 (DDR5/PCIe 5.0)"],
     imagen: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=600&auto=format&fit=crop&q=80",
