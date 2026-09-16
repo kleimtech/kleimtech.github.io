@@ -39,7 +39,7 @@
     </div>
   </div>
 
-<!-- 2. HEADER PRINCIPAL CON MEGA-MENU ESTILO SIGMA TIENDAS -->
+  <!-- 2. HEADER PRINCIPAL CON MEGA-MENU ESTILO SIGMA TIENDAS -->
   <header class="site-header">
     <div class="header-main-row">
       <div class="container header-wrapper">
@@ -176,7 +176,7 @@
   <section class="controls-section">
     <div class="container">
 
-      <!-- Breadcrumb / Badge de filtro activo (cuando se elige una subcategoría o categoría) -->
+      <!-- Breadcrumb / Badge de filtro activo -->
       <div id="activeFilterBadge" class="active-filter-badge" style="display: none;">
         <div class="active-filter-content">
           <span class="active-filter-label">Filtro activo:</span>
@@ -284,9 +284,58 @@
   </a>
 
   <!-- SCRIPTS -->
-  <!-- 1. Datos desacoplados y configuración -->
   <script src="productos.js"></script>
-  <!-- 2. Lógica reactiva de la aplicación -->
   <script src="app.js"></script>
+
+  <!-- LÓGICA DE INTERACCIÓN MENÚ MÓVIL Y DROPDOWNS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileBtn = document.getElementById('mobileMenuBtn');
+      const mainNav = document.querySelector('.header__main-nav');
+      const dropdownBtns = document.querySelectorAll('.nav-list > li > .nav-btn');
+
+      // 1. Alternar menú móvil
+      if (mobileBtn && mainNav) {
+        mobileBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          mobileBtn.classList.toggle('active');
+          mainNav.classList.toggle('nav-open');
+        });
+      }
+
+      // 2. Control para desplegar subcategorías en pantallas táctiles/móviles
+      dropdownBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (window.innerWidth <= 992) {
+            const parentLi = btn.parentElement;
+            
+            // Cerrar otros dropdowns abiertos
+            document.querySelectorAll('.nav-list > li').forEach(li => {
+              if (li !== parentLi) li.classList.remove('dropdown-open');
+            });
+
+            // Alternar el actual
+            parentLi.classList.toggle('dropdown-open');
+          }
+        });
+      });
+
+      // 3. Cerrar menú si hace clic en un subenlace
+      document.querySelectorAll('.dropdown a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (mainNav) mainNav.classList.remove('nav-open');
+          if (mobileBtn) mobileBtn.classList.remove('active');
+        });
+      });
+
+      // 4. Cerrar menú si hace clic fuera del header
+      document.addEventListener('click', (e) => {
+        if (mainNav && !mainNav.contains(e.target) && mobileBtn && !mobileBtn.contains(e.target)) {
+          mainNav.classList.remove('nav-open');
+          mobileBtn.classList.remove('active');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
