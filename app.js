@@ -312,7 +312,7 @@ function obtenerDatosCalculados(producto) {
    * Cierra el menú móvil
    */
   function closeMobileMenu() {
-    if (DOM.mainNav) DOM.mainNav.classList.remove("nav-open");
+    if (DOM.mainNav) DOM.mainNav.classList.remove("active");
     if (DOM.mobileMenuBtn) DOM.mobileMenuBtn.classList.remove("active");
     document.querySelectorAll(".header__nav-item.open").forEach(item => item.classList.remove("open"));
   }
@@ -402,12 +402,16 @@ function obtenerDatosCalculados(producto) {
    */
   function setupEventListeners() {
     // Menú hamburguesa móvil
-    if (DOM.mobileMenuBtn) {
-      DOM.mobileMenuBtn.addEventListener("click", () => {
-        DOM.mobileMenuBtn.classList.toggle("active");
-        if (DOM.mainNav) DOM.mainNav.classList.toggle("nav-open");
-      });
-    }
+if (DOM.mobileMenuBtn) {
+    // CAMBIO AQUÍ: Añadido soporte explícito para toques con el dedo ('touchstart')
+    ['click', 'touchstart'].forEach(eventType => {
+        DOM.mobileMenuBtn.addEventListener(eventType, function(e) {
+            e.preventDefault(); // Evita que Android ejecute la acción dos veces por error
+            DOM.mobileMenuBtn.classList.toggle("active");
+            if (DOM.mainNav) DOM.mainNav.classList.toggle("active"); // CAMBIO: "active"
+        }, { passive: false });
+    });
+}
 
     // Acordeón para submenús en dispositivos móviles
     document.querySelectorAll(".header__nav-item.has-dropdown > .header__nav-link").forEach(link => {
